@@ -1,20 +1,18 @@
-name: Connect to GCP and List Instances
+name: get secrets from secret manager
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_dispatch
 
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
 
 jobs:
-  build:
+  get-secrets:
+     runs-on: ubuntu-latest
     # Allow the job to fetch a GitHub ID token
     permissions:
       id-token: write
       contents: read
-
-    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
@@ -28,9 +26,9 @@ jobs:
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
     # List the instances in the project
-    - name: List Instances
-      run: |-
-        gcloud compute instances list --project $PROJECT_ID
-
-
-
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+  
+     - id: 'gcloud'
+       name: 'gcloud'
+       run: gcloud secrets versions access "latest" --secret "my-secret"
