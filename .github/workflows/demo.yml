@@ -4,11 +4,10 @@ on:
   workflow_dispatch
 
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  PROJECT_ID: 'flowing-precept-409007'
 
 jobs:
-  job_id:
-    # Allow the job to fetch a GitHub ID token
+  
     permissions:
       id-token: write
       contents: read
@@ -22,13 +21,13 @@ jobs:
         uses: 'google-github-actions/auth@v1'
         with:
           create_credentials_file: true
-          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER_ID }}
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          workload_identity_provider: 'projects/345060966647/locations/global/workloadIdentityPools/githubactions/providers/github'
+          service_account: 'github-action@flowing-precept-409007.iam.gserviceaccount.com'
 
     # List the instances in the project
     - name: List Instances
       run: |-
-        gcloud compute instances list --project $PROJECT_ID
+        gcloud compute instances list --project 'flowing-precept-409007'
   
      - id: 'gcloud'
        name: 'gcloud'
