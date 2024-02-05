@@ -1,36 +1,35 @@
 name: Connect to GCP and List Instances
 
 on:
-  workflow_dispatch
+  push:
+    branches: [ "main" ]
 
 env:
-  PROJECT_ID: 'flowing-precept-409007'
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
 
 jobs:
-  
-    permissions:
-      id-token: write
-      contents: read
+  setup-prepare-list:
+    name: Setup, Prepare,
+    runs-on: ubuntu-latest
 
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
     steps:
-      - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
-        with:
-          create_credentials_file: true
-          workload_identity_provider: 'projects/345060966647/locations/global/workloadIdentityPools/githubactions/providers/github'
-          service_account: 'github-action@flowing-precept-409007.iam.gserviceaccount.com'
+    # Configure Workload Identity Federation and generate an access token.
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        token_format: 'access_token'
+        workload_identity_provider:  ${{ secrets.WORKLOAD_IDENTITY_PROVIDER_ID }}
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
     # List the instances in the project
     - name: List Instances
       run: |-
-        gcloud compute instances list --project 'flowing-precept-409007'
-  
-     - id: 'gcloud'
-       name: 'gcloud'
-       run: gcloud secrets versions access "latest" --secret "my-secret"
-
-
+        gcloud compute instances list --project $PROJECT_ID
