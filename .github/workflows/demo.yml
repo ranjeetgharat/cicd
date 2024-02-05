@@ -1,36 +1,38 @@
-name: Connect to GCP and List Instances
+name: Prepare Manifests 
 
 on:
-  workflow_dispatch
+  push:
+    branches: [ "main" ]
 
 env:
-  PROJECT_ID: 'flowing-precept-409007'
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+  GKE_CLUSTER: kustomize-demo-cluster 
+  GKE_ZONE: asia-south1-a
+  ENVIRONMENT: dev
 
 jobs:
-  
-    permissions:
-      id-token: write
-      contents: read
+  setup-prepare-manifests-deploy:
+    name: Setup, Prepare, and Deploy
+    runs-on: ubuntu-latest
+    environment: production
 
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
     steps:
-      - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
-        with:
-          create_credentials_file: true
-          workload_identity_provider: 'projects/345060966647/locations/global/workloadIdentityPools/githubactions/providers/github'
-          service_account: 'github-action@flowing-precept-409007.iam.gserviceaccount.com'
+    # Configure Workload Identity Federation and generate an access token.
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        token_format: 'access_token'
+        workload_identity_provider:  ${{ secrets.WORKLOAD_IDENTITY_PROVIDER_ID }}
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-    # List the instances in the project
-    - name: List Instances
-      run: |-
-        gcloud compute instances list --project 'flowing-precept-409007'
-  
-     - id: 'gcloud'
-       name: 'gcloud'
-       run: gcloud secrets versions access "latest" --secret "my-secret"
+    
 
-
+    
