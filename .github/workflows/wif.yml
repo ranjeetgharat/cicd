@@ -30,6 +30,9 @@ jobs:
         service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
     # List the instances in the project
-    - name: List Instances
-      run: |-
-        gcloud compute instances list --project $PROJECT_ID
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+  
+     - id: 'gcloud'
+       name: 'gcloud'
+       run: gcloud secrets versions access "latest" --secret "my-secret"
